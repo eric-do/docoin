@@ -130,7 +130,7 @@ class Blockchain(object):
         return proof
 
     @staticmethod
-    def valid_proof(last_proof, proof) -> int:
+    def valid_proof(last_proof, proof) -> bool:
         """Validates the Proof
 
         :param last_proof: <int> Previous Proof
