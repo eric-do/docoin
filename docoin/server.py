@@ -1,4 +1,4 @@
-from blockchain import Blockchain
+from docoin import Blockchain
 from flask import Flask, jsonify, request
 from uuid import uuid4
 
