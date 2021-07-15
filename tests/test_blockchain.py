@@ -26,6 +26,7 @@ class TestBlockchain:
 
     def test_create_new_block(self):
         blockchain = Blockchain()
+        transaction_length = len(blockchain.current_transactions)
         last_proof = blockchain.chain[0]['proof']
         proof = blockchain.proof_of_work(last_proof)
         length = len(blockchain.chain)
@@ -40,6 +41,7 @@ class TestBlockchain:
         ]
         assert all(k in block for k in keys)
         assert len(blockchain.chain) == length + 1
+        # assert len(block.get('transactions')) == transaction_length + 1
 
     def test_valid_proof(self):
         blockchain = Blockchain()

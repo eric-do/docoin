@@ -40,7 +40,6 @@ def test_add_transaction(client):
         data=json.dumps(transaction),
         content_type='application/json'
     )
-    print(response.data)
     data = json.loads(response.data)
     assert 'message' in data
 
