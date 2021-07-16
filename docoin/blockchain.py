@@ -98,6 +98,14 @@ class Blockchain(object):
         self.chain.append(block)
         return block
 
+    def add_block(self, block) -> bool:
+        if self.valid_proof(self.last_block['proof'], block['proof']):
+            self.current_transactions = []
+            self.chain.append(block)
+            return True
+        else:
+            return False
+
     def new_transaction(self, sender, recipient, amount) -> int:
         """Creates a new transaction to go into the next mined Block
 

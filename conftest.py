@@ -4,6 +4,10 @@ from nacl.public import PrivateKey
 from nacl.signing import SigningKey
 from nacl.encoding import HexEncoder
 from time import time
+from docoin import blockchain
+from docoin.blockchain import Blockchain
+
+bc = Blockchain()
 
 
 @pytest.fixture
@@ -27,3 +31,24 @@ def transaction():
 
     tx['signature'] = signed_ascii
     return tx
+
+
+@pytest.fixture
+def block():
+    last_block = bc.last_block
+    last_proof = last_block['proof']
+    proof = bc.proof_of_work(last_proof)
+    previous_hash = bc.hash(bc.last_block)
+    block = {
+        'index': len(bc.chain) + 1,
+        'timestamp': time(),
+        'transactions': bc.current_transactions,
+        'proof': proof,
+        'previous_hash': previous_hash or bc.hash(bc.chain[-1])
+    }
+    return block
+
+
+@pytest.fixture
+def blockchain():
+    return bc
