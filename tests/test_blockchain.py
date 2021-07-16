@@ -57,3 +57,17 @@ class TestBlockchain:
         index = blockchain.new_transaction('eric_sender', 'eric_recipient', 10)
         assert len(blockchain.current_transactions) == tx_length + 1
         assert index == 2
+
+    def test_add_block(self, block):
+        blockchain = Blockchain()
+        num_blocks = len(blockchain.chain)
+        blockchain.add_block(block)
+
+        assert len(blockchain.chain) == num_blocks + 1
+
+    def test_add_invalid_block(self, invalid_block):
+        blockchain = Blockchain()
+        num_blocks = len(blockchain.chain)
+        blockchain.add_block(invalid_block)
+
+        assert len(blockchain.chain) == num_blocks

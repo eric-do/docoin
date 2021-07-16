@@ -50,5 +50,16 @@ def block():
 
 
 @pytest.fixture
+def invalid_block():
+    return {
+        'index': len(bc.chain) + 1,
+        'timestamp': time(),
+        'transactions': bc.current_transactions,
+        'proof': 'fake_proof',
+        'previous_hash': 'fake_hash'
+    }
+
+
+@pytest.fixture
 def blockchain():
     return bc
