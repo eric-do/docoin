@@ -92,6 +92,7 @@ class TestBlockchain:
             },
         ]
         root = blockchain.calculate_merkle_root()
-        assert root == '5be33b5a06d0c63ee1469' +\
-                       '089334518e1a46b93b0c' +\
-                       '1cf817113e5382ada0ada0a'
+
+        assert root == '7d9a290b5b5e963b7bd1' +\
+                       'b5411f073a19c37e6bda' +\
+                       '789bce7eca05344088e7e6bd'

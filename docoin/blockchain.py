@@ -146,7 +146,7 @@ class Blockchain(object):
         :return: <str> Merkle root
         """
         hashes = [self.hash(t) for t in self.current_transactions]
-
+        hashes.sort()
         while len(hashes) > 1:
             temp = []
             if len(hashes) % 2 == 1:
