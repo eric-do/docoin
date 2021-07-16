@@ -1,3 +1,4 @@
+import re
 from docoin.blockchain import Blockchain
 
 
@@ -93,6 +94,7 @@ class TestBlockchain:
         ]
         root = blockchain.calculate_merkle_root()
 
+        assert re.match('^[A-Fa-f0-9]{64}$', root)
         assert root == '7d9a290b5b5e963b7bd1' +\
                        'b5411f073a19c37e6bda' +\
                        '789bce7eca05344088e7e6bd'
