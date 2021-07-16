@@ -1,25 +1,13 @@
+import pytest
 import json
-from docoin.transactions import create_transaction, verify_transaction
-from nacl.encoding import HexEncoder
 from nacl.public import PrivateKey
 from nacl.signing import SigningKey
+from nacl.encoding import HexEncoder
 from time import time
 
 
-def test_create_transaction():
-    sender = PrivateKey.generate()
-    recipient = PrivateKey.generate()
-    keys = ['sender', 'recipient', 'amount', 'timestamp']
-    transaction_processed = create_transaction(
-        bytes(sender).hex(),
-        bytes(sender.public_key).hex(),
-        bytes(recipient.public_key).hex(),
-        10
-    )
-    assert all(k in transaction_processed for k in keys) is True
-
-
-def test_verify_transaction():
+@pytest.fixture
+def transaction():
     sender = PrivateKey.generate()
     sender_private_key = bytes(sender).hex()
     recipient = PrivateKey.generate()
@@ -38,5 +26,4 @@ def test_verify_transaction():
     signed_ascii = HexEncoder.encode(signature_bytes).decode('ascii')
 
     tx['signature'] = signed_ascii
-
-    assert verify_transaction(tx) is True
+    return tx
