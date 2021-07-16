@@ -71,3 +71,27 @@ class TestBlockchain:
         blockchain.add_block(invalid_block)
 
         assert len(blockchain.chain) == num_blocks
+
+    def test_calculate_merkle_root(self):
+        blockchain = Blockchain()
+        blockchain.current_transactions = [
+            {
+                'sender': 'eric',
+                'recipient': 'tina',
+                'amount': 4
+            },
+            {
+                'sender': 'tina',
+                'recipient': 'jessica',
+                'amount': 5
+            },
+            {
+                'sender': 'jessica',
+                'recipient': 'amanda',
+                'amount': 5
+            },
+        ]
+        root = blockchain.calculate_merkle_root()
+        assert root == '5be33b5a06d0c63ee1469' +\
+                       '089334518e1a46b93b0c' +\
+                       '1cf817113e5382ada0ada0a'

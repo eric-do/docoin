@@ -1,8 +1,10 @@
 import hashlib
 import json
+from attr import has
+import requests
 from time import time
 from urllib.parse import urlparse
-import requests
+import hashlib
 
 
 class Blockchain(object):
@@ -137,6 +139,27 @@ class Blockchain(object):
 
         return proof
 
+    def calculate_merkle_root(self) -> str:
+        """Calculates Merkle root hash
+
+        :param: None
+        :return: <str> Merkle root
+        """
+        hashes = [self.hash(t) for t in self.current_transactions]
+
+        while len(hashes) > 1:
+            temp = []
+            if len(hashes) % 2 == 1:
+                hashes += [hashes[-1]]
+            for i in range(0, len(hashes), 2):
+                temp.append(
+                    self.hash(
+                        (hashes[i] + hashes[i + 1]).encode()
+                    ))
+            hashes = temp
+
+        return hashes[0]
+
     @staticmethod
     def valid_proof(last_proof, proof) -> bool:
         """Validates the Proof
@@ -151,14 +174,22 @@ class Blockchain(object):
         return guess_hash[:4] == "0000"
 
     @staticmethod
-    def hash(block):
+    def hash(input):
         """Creates a SHA-256 hash of a block
 
         :param block: <dict> Block
         :return: <str>
         """
-        block_string = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(block_string).hexdigest()
+        if isinstance(input, dict):
+            string = json.dumps(input, sort_keys=True).encode()
+        else:
+            string = input
+        return hashlib.sha256(
+                hashlib
+                .sha256(string)
+                .hexdigest()
+                .encode()
+            ).hexdigest()
 
     @property
     def last_block(self):
