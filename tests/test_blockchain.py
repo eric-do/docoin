@@ -1,5 +1,6 @@
 import re
-from docoin.blockchain import Blockchain
+from docoin.blockchain import Blockchain, TransactionMinimumLengthError
+import pytest
 
 
 class TestBlockchain:
@@ -73,7 +74,7 @@ class TestBlockchain:
 
         assert len(blockchain.chain) == num_blocks
 
-    def test_calculate_merkle_root(self):
+    def test_calculate_merkle_root_odd_count(self):
         blockchain = Blockchain()
         blockchain.current_transactions = [
             {
@@ -98,3 +99,27 @@ class TestBlockchain:
         assert root == '7d9a290b5b5e963b7bd1' +\
                        'b5411f073a19c37e6bda' +\
                        '789bce7eca05344088e7e6bd'
+
+    def test_calculate_merkle_root_event_count(self):
+        blockchain = Blockchain()
+        blockchain.current_transactions = [
+            {
+                'sender': 'eric',
+                'recipient': 'tina',
+                'amount': 4
+            },
+            {
+                'sender': 'tina',
+                'recipient': 'jessica',
+                'amount': 5
+            }
+        ]
+        root = blockchain.calculate_merkle_root()
+
+        assert re.match('^[A-Fa-f0-9]{64}$', root)
+
+    def test_calculate_merkle_root_no_transactions(self):
+        blockchain = Blockchain()
+
+        with pytest.raises(TransactionMinimumLengthError):
+            blockchain.calculate_merkle_root()

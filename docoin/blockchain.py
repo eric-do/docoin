@@ -7,6 +7,11 @@ from urllib.parse import urlparse
 import hashlib
 
 
+class TransactionMinimumLengthError(Exception):
+    def __init__(self, message="Block must contain at least one transaction"):
+        self.message = message
+
+
 class Blockchain(object):
     """Blockchain class
 
@@ -145,6 +150,9 @@ class Blockchain(object):
         :param: None
         :return: <str> Merkle root
         """
+        if not self.current_transactions:
+            raise TransactionMinimumLengthError
+
         hashes = [self.hash(t) for t in self.current_transactions]
         hashes.sort()
         while len(hashes) > 1:
