@@ -39,3 +39,5 @@ jobs:
           name: Run tests
           # This assumes pytest is installed via the install-package step above
           command: pytest
+          environment:
+            PRIVATE_KEY: 79747b14e87073fb1d34cb7b05f3e0130ae54e03936516bad8c801c3e9d87eb5
