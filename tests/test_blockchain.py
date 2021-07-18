@@ -24,7 +24,12 @@ class TestBlockchain:
         assert isinstance(proof, int)
         assert blockchain.valid_proof(last_proof, proof) is True
 
-    def test_create_new_block(self, blockchain, private_key, public_key):
+    def test_create_new_block(
+        self,
+        blockchain,
+        private_key,
+        public_key
+    ):
         transaction_length = len(blockchain.current_transactions)
         last_proof = blockchain.chain[0]['proof']
         proof = blockchain.proof_of_work(last_proof)
@@ -68,11 +73,21 @@ class TestBlockchain:
         print(blockchain.chain)
         assert index == 2
 
-    def test_add_block(self, block, blockchain):
+    def test_add_block(
+        self,
+        block,
+        blockchain: Blockchain,
+        create_transaction
+    ):
+        txs = [create_transaction() for n in range(5)]
+        block['transactions'] = txs
+        blockchain.current_transactions = txs[:] + \
+            [create_transaction() for n in range(2)]
         num_blocks = len(blockchain.chain)
         blockchain.add_block(block)
 
         assert len(blockchain.chain) == num_blocks + 1
+        assert len(blockchain.current_transactions) == 2
 
     def test_add_invalid_block(self, invalid_block, blockchain):
         num_blocks = len(blockchain.chain)
@@ -122,11 +137,6 @@ class TestBlockchain:
 
         assert re.match('^[A-Fa-f0-9]{64}$', root)
 
-    def test_merkle_no_transactions(
-        self,
-        blockchain,
-        private_key,
-        public_key
-    ):
+    def test_merkle_no_transactions(self, blockchain):
         with pytest.raises(TransactionMinimumLengthError):
             blockchain.merkle()
