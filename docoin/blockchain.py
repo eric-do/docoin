@@ -120,8 +120,19 @@ class Blockchain(object):
         return block
 
     def add_block(self, block) -> bool:
+        """Add block to the blockchain
+
+        Adds a block to the chain.
+
+        If the new block does not contain all the current node's current
+        transactions, the remaining transactions will be left in the
+        pool.
+
+        :param block: <dict> the block to be added to the chain
+        """
         if self.valid_proof(self.last_block['proof'], block['proof']):
-            self.current_transactions = []
+            self.current_transactions = [tx for tx in self.current_transactions
+                                         if tx not in block['transactions']]
             self.chain.append(block)
             return True
         else:

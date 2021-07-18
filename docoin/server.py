@@ -19,9 +19,7 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.update(test_config)
 
-    # Generate global unique address for this node
-    node_identifier = str(uuid4()).replace('-', '')
-
+    # Unique address for this node
     blockchain = Blockchain(os.environ.get('PRIVATE_KEY'))
 
     @app.route('/mine', methods=['GET'])

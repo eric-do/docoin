@@ -8,6 +8,7 @@ from nacl.encoding import HexEncoder
 from time import time
 from docoin import blockchain
 from docoin.blockchain import Blockchain
+from random import randint
 
 load_dotenv()
 bc = Blockchain(
@@ -42,6 +43,31 @@ def transaction():
 
     tx['signature'] = signed_ascii
     return tx
+
+
+@pytest.fixture
+def create_transaction(low_amount=1, high_amount=10000000, time=int(time())):
+    def create():
+        sender = PrivateKey.generate()
+        sender_private_key = bytes(sender).hex()
+        recipient = PrivateKey.generate()
+        signing_key = SigningKey(sender_private_key, encoder=HexEncoder)
+
+        tx = {
+            'sender': bytes(signing_key.verify_key).hex(),
+            'recipient': bytes(recipient.public_key).hex(),
+            'amount': randint(low_amount, high_amount),
+            'timestamp': time
+        }
+
+        tx_bytes = json.dumps(tx, sort_keys=True).encode('ascii')
+        signed_hex = signing_key.sign(tx_bytes, encoder=HexEncoder)
+        signature_bytes = HexEncoder.decode(signed_hex.signature)
+        signed_ascii = HexEncoder.encode(signature_bytes).decode('ascii')
+
+        tx['signature'] = signed_ascii
+        return tx
+    return create
 
 
 @pytest.fixture
