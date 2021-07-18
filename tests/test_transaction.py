@@ -24,7 +24,6 @@ def test_verify_transaction():
     sender_private_key = bytes(sender).hex()
     recipient = PrivateKey.generate()
     signing_key = SigningKey(sender_private_key, encoder=HexEncoder)
-
     tx = {
         'sender': bytes(signing_key.verify_key).hex(),
         'recipient': bytes(recipient.public_key).hex(),

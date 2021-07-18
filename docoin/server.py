@@ -1,6 +1,11 @@
+import os
 from .blockchain import Blockchain
 from flask import Flask, jsonify, request
 from uuid import uuid4
+from dotenv import load_dotenv
+from docoin.transactions import create_transaction, verify_transaction
+
+load_dotenv()
 
 
 def create_app(test_config=None):
@@ -17,7 +22,7 @@ def create_app(test_config=None):
     # Generate global unique address for this node
     node_identifier = str(uuid4()).replace('-', '')
 
-    blockchain = Blockchain()
+    blockchain = Blockchain(os.environ.get('PRIVATE_KEY'))
 
     @app.route('/mine', methods=['GET'])
     def mine():
@@ -26,11 +31,15 @@ def create_app(test_config=None):
         proof = blockchain.proof_of_work(last_proof)
 
         # Successful mining is rewarded with a single coin
-        blockchain.new_transaction(
-            sender='0',
-            recipient=node_identifier,
+        tx = create_transaction(
+            sender_private_key=os.environ.get('PRIVATE_KEY'),
+            sender_public_key=os.environ.get('PUBLIC_KEY'),
+            recipient_public_key=os.environ.get('PUBLIC_KEY'),
             amount=1
         )
+
+        if verify_transaction(tx):
+            _ = blockchain.new_transaction(tx)
 
         previous_hash = blockchain.hash(blockchain.last_block)
         block = blockchain.new_block(proof, previous_hash)
@@ -54,11 +63,14 @@ def create_app(test_config=None):
             return 'Missing values', 400
 
         # Create new transaction
-        index = blockchain.new_transaction(
+        tx = create_transaction(
             values['sender'],
             values['recipient'],
             values['amount']
-            )
+        )
+
+        if verify_transaction(tx):
+            index = blockchain.new_transaction(tx)
 
         response = {
             'message': f'Transaction will be added to Block {index}'

@@ -28,13 +28,7 @@ def test_mining_returns_block(client):
     assert all(k in data for k in keys) is True
 
 
-def test_add_transaction(client):
-    transaction = {
-        'sender': 'eric-sender',
-        'recipient': 'eric-recipient',
-        'amount': 10
-    }
-
+def xtest_add_transaction(client, transaction):
     response = client.post(
         '/transactions/new',
         data=json.dumps(transaction),

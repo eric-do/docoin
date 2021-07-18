@@ -1,3 +1,5 @@
+from docoin.transactions import create_transaction
+import os
 import hashlib
 import json
 from attr import has
@@ -7,6 +9,11 @@ from urllib.parse import urlparse
 import hashlib
 
 
+class TransactionMinimumLengthError(Exception):
+    def __init__(self, message="Block must contain at least one transaction"):
+        self.message = message
+
+
 class Blockchain(object):
     """Blockchain class
 
@@ -14,10 +21,21 @@ class Blockchain(object):
       chain: a list of all Blocks in the chain
       current_transactions: list of pending transactions
     """
-    def __init__(self):
+    def __init__(
+        self,
+        private_key=os.environ.get('PRIVATE_KEY'),
+        public_key=os.environ.get('PUBLIC_KEY'),
+    ):
         self.chain = []
         self.current_transactions = []
         self.nodes = set()
+        tx = create_transaction(
+            sender_private_key=private_key,
+            sender_public_key=public_key,
+            recipient_public_key=public_key,
+            amount=1
+        )
+        self.current_transactions.append(tx)
         self.new_block(previous_hash=1, proof=100)
 
     def register_node(self, address) -> None:
@@ -93,6 +111,7 @@ class Blockchain(object):
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
+            'merkle_root': self.merkle(),
             'previous_hash': previous_hash or self.hash(self.chain[-1])
         }
 
@@ -108,19 +127,13 @@ class Blockchain(object):
         else:
             return False
 
-    def new_transaction(self, sender, recipient, amount) -> int:
-        """Creates a new transaction to go into the next mined Block
+    def new_transaction(self, transaction) -> int:
+        """Add a transaction to the next mined Block
 
-        :param sender: <str> Address of the Sender
-        :param recipient: <str> Address of the Recipient
-        :param amount: <int> Amount
+        :param transaction: <dict> the transaction dict
         :return: <int> The index of the Block for this transaction
         """
-        self.current_transactions.append({
-            'sender': sender,
-            'recipient': recipient,
-            'amount': amount
-        })
+        self.current_transactions.append(transaction)
 
         return self.last_block['index'] + 1
 
@@ -139,12 +152,15 @@ class Blockchain(object):
 
         return proof
 
-    def calculate_merkle_root(self) -> str:
+    def merkle(self) -> str:
         """Calculates Merkle root hash
 
         :param: None
         :return: <str> Merkle root
         """
+        if not self.current_transactions:
+            raise TransactionMinimumLengthError
+
         hashes = [self.hash(t) for t in self.current_transactions]
         hashes.sort()
         while len(hashes) > 1:
