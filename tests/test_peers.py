@@ -4,13 +4,12 @@ from docoin.connections import ConnectionPool
 from time import time
 
 
-def test_handle_transaction(transaction):
-    bc = Blockchain()
+def test_handle_transaction(blockchain, transaction):
     peers = ConnectionPool()
-    protocol = P2PProtocol(bc, peers)
+    protocol = P2PProtocol(blockchain, peers)
 
     protocol.handle_transaction(transaction)
-    assert len(bc.current_transactions) == 1
+    assert len(blockchain.current_transactions) == 1
 
 
 def test_handle_block(block, blockchain: Blockchain):

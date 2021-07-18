@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import pytest
 import json
 from nacl.public import PrivateKey
@@ -7,7 +9,16 @@ from time import time
 from docoin import blockchain
 from docoin.blockchain import Blockchain
 
-bc = Blockchain()
+load_dotenv()
+bc = Blockchain(
+    os.environ.get('PRIVATE_KEY'),
+    os.environ.get('PUBLIC_KEY'),
+)
+
+private_key = PrivateKey.generate()
+private_key_hex = bytes(private_key).hex()
+public_key = SigningKey(private_key_hex, encoder=HexEncoder)
+public_key_hex = bytes(public_key.verify_key).hex()
 
 
 @pytest.fixture
@@ -62,4 +73,17 @@ def invalid_block():
 
 @pytest.fixture
 def blockchain():
-    return bc
+    return Blockchain(
+        os.environ.get('PRIVATE_KEY'),
+        os.environ.get('PUBLIC_KEY'),
+    )
+
+
+@pytest.fixture
+def private_key():
+    return private_key_hex
+
+
+@pytest.fixture
+def public_key():
+    return public_key_hex
