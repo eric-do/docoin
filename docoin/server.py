@@ -22,6 +22,10 @@ def create_app(test_config=None):
     # Unique address for this node
     blockchain = Blockchain(os.environ.get('PRIVATE_KEY'))
 
+    @app.route('/', methods=['GET'])
+    def frontend():
+        return "<h1>DOCOIN EXPLORER</h1>"
+
     @app.route('/mine', methods=['GET'])
     def mine():
         last_block = blockchain.last_block
