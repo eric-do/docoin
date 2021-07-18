@@ -41,3 +41,4 @@ jobs:
           command: pytest
           environment:
             PRIVATE_KEY: 79747b14e87073fb1d34cb7b05f3e0130ae54e03936516bad8c801c3e9d87eb5
+            PUBLIC_KEY: 88f69062a1e4ee7666bdaf1c09db1c4c03447e52ea926be0da383f313f302dcd 
