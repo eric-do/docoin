@@ -6,7 +6,7 @@ The code is fully tested and deployed using CircleCI and Heroku for continuous i
 ## Tech stack
 - Python
 - LevelDB
-- Flask
+- Mongo
 - Heroku / CircleCI
 
 ## Server
@@ -19,4 +19,10 @@ gunicorn app:app
 Tests are implemented with pytest and can be ran with
 ```
 pytest
+```
+
+## Virtual environment
+Start the virtual environment with
+```
+source .venv/bin/activate
 ```
