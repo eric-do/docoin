@@ -5,6 +5,26 @@ from nacl.exceptions import BadSignatureError
 import json
 
 
+class Transaction:
+    """Transaction class
+
+    The transaction class is responsible for
+    - Creating a transaction, given inputs
+    - Validating inputs
+    - Adding UTXO to UTXO DB???
+
+    Attributes:
+      inputs: UTXO inputs for the transaction
+      outputs: UTXO outputs for the transaction
+      fees: fees for the transaction
+    """
+    def __init__(
+        inputs: list[str],
+
+    ):
+        pass
+
+
 def create_transaction(
     sender_private_key: str,
     sender_public_key: str,

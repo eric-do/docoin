@@ -1,14 +1,17 @@
+from config import DATABASE_NAME
 import os
 from dotenv import load_dotenv
 import pytest
 import json
+import psycopg2
 from nacl.public import PrivateKey
 from nacl.signing import SigningKey
 from nacl.encoding import HexEncoder
 from time import time
+from random import randint
 from docoin import blockchain
 from docoin.blockchain import Blockchain
-from random import randint
+from database import database
 
 load_dotenv()
 bc = Blockchain(
@@ -20,6 +23,26 @@ private_key = PrivateKey.generate()
 private_key_hex = bytes(private_key).hex()
 public_key = SigningKey(private_key_hex, encoder=HexEncoder)
 public_key_hex = bytes(public_key.verify_key).hex()
+
+
+@pytest.fixture
+def session():
+    class Object(object):
+        pass
+
+    config = Object()
+    config.DATABASE_NAME = "docoin_test"
+    config.DATABASE_USERNAME = "postgres"
+    db = database.Database(config)
+    db.connect()
+    yield db
+    db.conn.close()
+
+
+@pytest.fixture
+def utxo_model(session):
+    utxo = database.UTXO(session)
+    return utxo
 
 
 @pytest.fixture
