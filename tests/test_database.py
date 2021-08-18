@@ -9,7 +9,7 @@ def test_successful_database_connection(session):
     assert cur.fetchone()[0] == 2
 
 
-def test_insert_utxo_to_database(utxo_model):
+def test_insert_utxo_to_database(utxo_model, db_cleanup):
     utxo = {
         "address": hashlib.sha256("address".encode()).hexdigest(),
         "tx_hash": hashlib.sha256("hash".encode()).hexdigest(),
@@ -19,15 +19,8 @@ def test_insert_utxo_to_database(utxo_model):
         "spent": random.choice([True, False])
     }
     utxo_model.add_unspent_transaction(utxo)
-    cur = utxo_model.session.conn.cursor()
-    print(utxo["address"])
-    cur.execute(
-        "SELECT * FROM utxo WHERE address = %s", [utxo["address"]]
-    )
-    print(cur.query)
-    rows = cur.fetchall()
-    cur.execute(
-        "DELETE FROM utxo WHERE address = %s", [utxo["address"]]
-    )
-    print(cur.query)
+    rows = utxo_model.get_unspent_transaction_outputs(utxo["address"])
+
+    print(rows)
     assert len(rows) == 1
+    assert rows[0]["address"] == utxo["address"]

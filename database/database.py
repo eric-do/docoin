@@ -1,4 +1,5 @@
 import psycopg2
+import psycopg2.extras
 from loguru import logger
 
 
@@ -27,11 +28,15 @@ class Database:
             finally:
                 logger.info('Successfully connected to DB')
 
-    def select_rows(self, query):
+    def select_rows(self, query, params):
         self.connect()
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            records = [row for row in cur.fetchall()]
+        with self.conn.cursor(
+            cursor_factory=psycopg2.extras.DictCursor
+        ) as cur:
+            cur.execute(query, params)
+            records = cur.fetchall()
+        print(records)
+        print(cur.query)
         return records
 
     def update_rows(self, query, params):
@@ -63,11 +68,8 @@ class UTXO:
 
     def get_unspent_transaction_outputs(self, address):
         query = "SELECT * FROM utxo \
-                 WHERE address = '{}' \
+                 WHERE address = %s \
                  AND spent = FALSE \
-                 ORDER BY amount"
-        utxo = self.session.select_rows(query.format(address))
+                 ORDER BY value"
+        utxo = self.session.select_rows(query, [address])
         return utxo
-
-    def get_unspent_transaction_outputs(self, address):
-        txo = self.get_transaction_outputs(address)

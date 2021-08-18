@@ -39,6 +39,15 @@ def session():
     db.conn.close()
 
 
+@pytest.fixture()
+def db_cleanup(session):
+    print('RUNNING TEST')
+    yield
+    print('CLEANING UP DB')
+    session.conn.cursor().execute('TRUNCATE TABLE utxo')
+    session.conn.commit()
+
+
 @pytest.fixture
 def utxo_model(session):
     utxo = database.UTXO(session)
