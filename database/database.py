@@ -8,6 +8,11 @@ class Database:
 
     This class is meant to connect to a Postgres DB.
     Its intended to be generic
+
+    Methods
+    - connect: establish connection to DB if none exists
+    - select_rows: method for querying rows
+    - update_rows: method for updating rows
     """
 
     def __init__(self, config):
@@ -48,12 +53,13 @@ class Database:
 
 class UTXO:
     """UTXO class for handling unspent transactions
+
     """
 
     def __init__(self, session: Database):
         self.session = session
 
-    def add_unspent_transaction(self, utxo):
+    def add_utxo(self, utxo):
         query = 'INSERT INTO utxo (address, tx_hash, tx_index, \
                                    tx_time, script, value) \
                  VALUES (%s, %s, %s, %s, %s, %s)'
@@ -65,7 +71,7 @@ class UTXO:
         message = self.session.update_rows(query, params)
         print(message)
 
-    def get_unspent_transaction_outputs(self, address):
+    def get_utxo(self, address):
         query = "SELECT * FROM utxo \
                  WHERE address = %s \
                  ORDER BY value"

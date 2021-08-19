@@ -18,8 +18,8 @@ def test_insert_utxo_to_database(utxo_model, db_cleanup):
         "script": hashlib.sha256("script".encode()).hexdigest(),
         "value": float("{:.8f}".format(random.randrange(1, 1000000)/100)),
     }
-    utxo_model.add_unspent_transaction(utxo)
-    rows = utxo_model.get_unspent_transaction_outputs(utxo["address"])
+    utxo_model.add_utxo(utxo)
+    rows = utxo_model.get_utxo(utxo["address"])
 
     assert len(rows) == 1
     assert rows[0]["address"] == utxo["address"]
@@ -34,7 +34,7 @@ def test_spend_transaction(utxo_model):
         "script": hashlib.sha256("script".encode()).hexdigest(),
         "value": float("{:.8f}".format(random.randrange(1, 1000000)/100)),
     }
-    utxo_model.add_unspent_transaction(utxo)
+    utxo_model.add_utxo(utxo)
     utxo_model.spend_utxo(utxo["address"], utxo["tx_index"])
-    rows = utxo_model.get_unspent_transaction_outputs(utxo["address"])
+    rows = utxo_model.get_utxo(utxo["address"])
     assert len(rows) == 0
