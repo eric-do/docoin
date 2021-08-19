@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS transactions CASCADE;
 DROP TABLE IF EXISTS utxo;
 
 CREATE TABLE transactions (
@@ -18,10 +18,10 @@ CREATE TABLE utxo (
   id SERIAL,
   address VARCHAR(64) NOT NULL,
   tx_hash VARCHAR(64) NOT NULL,
+  tx_index SMALLINT,
   tx_time TIMESTAMPTZ NOT NULL,
   script VARCHAR(64) NOT NULL,
-  value DECIMAL(20, 8),
-  spent BOOLEAN
+  value DECIMAL(20, 8)
 );
 
-CREATE INDEX utxo_address_spent ON utxo (address, spent);
+CREATE INDEX utxo_address ON utxo (address);

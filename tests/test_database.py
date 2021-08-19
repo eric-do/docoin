@@ -13,14 +13,28 @@ def test_insert_utxo_to_database(utxo_model, db_cleanup):
     utxo = {
         "address": hashlib.sha256("address".encode()).hexdigest(),
         "tx_hash": hashlib.sha256("hash".encode()).hexdigest(),
+        "tx_index": random.randrange(10),
         "tx_time": f'{str(datetime.datetime.now())} UTC',
         "script": hashlib.sha256("script".encode()).hexdigest(),
         "value": float("{:.8f}".format(random.randrange(1, 1000000)/100)),
-        "spent": random.choice([True, False])
     }
     utxo_model.add_unspent_transaction(utxo)
     rows = utxo_model.get_unspent_transaction_outputs(utxo["address"])
 
-    print(rows)
     assert len(rows) == 1
     assert rows[0]["address"] == utxo["address"]
+
+
+def test_spend_transaction(utxo_model):
+    utxo = {
+        "address": hashlib.sha256("address".encode()).hexdigest(),
+        "tx_hash": hashlib.sha256("hash".encode()).hexdigest(),
+        "tx_index": random.randrange(10),
+        "tx_time": f'{str(datetime.datetime.now())} UTC',
+        "script": hashlib.sha256("script".encode()).hexdigest(),
+        "value": float("{:.8f}".format(random.randrange(1, 1000000)/100)),
+    }
+    utxo_model.add_unspent_transaction(utxo)
+    utxo_model.spend_utxo(utxo["address"], utxo["tx_index"])
+    rows = utxo_model.get_unspent_transaction_outputs(utxo["address"])
+    assert len(rows) == 0

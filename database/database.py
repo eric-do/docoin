@@ -35,14 +35,13 @@ class Database:
         ) as cur:
             cur.execute(query, params)
             records = cur.fetchall()
-        print(records)
-        print(cur.query)
         return records
 
     def update_rows(self, query, params):
         self.connect()
         with self.conn.cursor() as cur:
             cur.execute(query, params)
+            print(cur.query)
             self.conn.commit()
         return f"{cur.rowcount} rows affected."
 
@@ -55,13 +54,13 @@ class UTXO:
         self.session = session
 
     def add_unspent_transaction(self, utxo):
-        query = 'INSERT INTO utxo (address, tx_hash, \
-                                   tx_time, script, \
-                                   value, spent) \
+        query = 'INSERT INTO utxo (address, tx_hash, tx_index, \
+                                   tx_time, script, value) \
                  VALUES (%s, %s, %s, %s, %s, %s)'
+        print(utxo)
         params = (
-            utxo["address"], utxo["tx_hash"], utxo["tx_time"],
-            utxo["script"], utxo["value"], utxo["spent"]
+            utxo["address"], utxo["tx_hash"], utxo["tx_index"],
+            utxo["tx_time"], utxo["script"], utxo["value"]
         )
         message = self.session.update_rows(query, params)
         print(message)
@@ -69,7 +68,13 @@ class UTXO:
     def get_unspent_transaction_outputs(self, address):
         query = "SELECT * FROM utxo \
                  WHERE address = %s \
-                 AND spent = FALSE \
                  ORDER BY value"
         utxo = self.session.select_rows(query, [address])
         return utxo
+
+    def spend_utxo(self, address, tx_index):
+        query = "DELETE FROM utxo \
+                 WHERE address = %s \
+                 AND tx_index = %s"
+        message = self.session.update_rows(query, [address, tx_index])
+        print(message)
