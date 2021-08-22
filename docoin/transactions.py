@@ -4,7 +4,7 @@ from nacl.signing import SigningKey, VerifyKey
 from nacl.exceptions import BadSignatureError
 import json
 
-from database.database import Database, UTXO
+from database.database import UTXO
 
 
 class Transaction:
@@ -85,7 +85,7 @@ def get_utxo_for_address(
     UTXO_DB: UTXO,
     address: str
 ):
-    """Gets the smallest number of utxo given requested amount
+    """Gets utxo for a given address
 
     :param amount: <float> requested number of docoin
     :param address: <str> address to search by
@@ -95,6 +95,47 @@ def get_utxo_for_address(
     """
     utxo = UTXO_DB.get_all_utxo_for_address(address)
     return utxo
+
+
+def get_utxo_from_smaller_amounts(utxo, minimum, sorted=False):
+    """Gets a list of utxo that will sum to the minimum amount.
+    All utxo in the list should be less than the minimum amount.
+
+    :param amount: <list[utxo]> a list of utxo
+    :param minimum: <float> minimum amount for desired total
+    :param sorted: <bool> flag for whether provided utxo list is sorted
+    :return: <tuple(list[dict], change)> tuple of valid utxo and change
+    """
+    total = 0
+    result = []
+    if not sorted:
+        utxo = sorted(
+            utxo,
+            key=lambda u: u["value"],
+            reverse=True
+        )
+    for u in utxo:
+        result.append(u)
+        total += u["value"]
+        if total >= minimum:
+            change = total - minimum
+            return result, change
+    return None, 0
+
+
+def get_utxo_from_larger_amounts(utxo, minimum, sorted=False):
+    """Gets a list of utxo that will sum to the minimum amount
+    All utxo in the list should be greater than the minimum amount.
+
+    :param amount: <list[utxo]> a list of utxo
+    :param minimum: <float> minimum amount for desired total
+    :param sorted: <bool> flag for whether provided utxo list is sorted
+    :return: <tuple(list[dict], change)> tuple of valid utxo and change
+    """
+    if not sorted:
+        utxo = sorted(utxo, key=lambda u: u["value"])
+    change = utxo[0]["value"] - minimum
+    return [utxo[0]], change
 
 
 def get_valid_utxo_for_address_and_amount(
@@ -112,12 +153,5 @@ def get_valid_utxo_for_address_and_amount(
     greaters = [utxo for utxo in sorted_unspent if utxo["value"] >= amount]
     lessers = [utxo for utxo in sorted_unspent if utxo["value"] < amount]
     if greaters:
-        change = amount - greaters[0]["value"]
-        return [greaters[0]], change
-    i, total, reversed_utxo = 0, 0, list(reversed(lessers))
-    utxo = []
-    while total < amount:
-        utxo.append(reversed_utxo[i])
-        total += reversed_utxo[i]["value"]
-    change = total - amount
-    return (utxo, change) if total >= amount else (None, 0)
+        return get_utxo_from_larger_amounts(greaters, amount, True)
+    return get_utxo_from_smaller_amounts(list(reversed(lessers)), amount, True)
