@@ -4,6 +4,8 @@ from nacl.signing import SigningKey, VerifyKey
 from nacl.exceptions import BadSignatureError
 import json
 
+from database.database import Database, UTXO
+
 
 class Transaction:
     """Transaction class
@@ -77,3 +79,46 @@ def verify_transaction(transaction) -> bool:
     except BadSignatureError:
         print(BadSignatureError)
         return False
+
+
+def get_utxo_for_address(
+    UTXO_DB: UTXO,
+    address: str
+):
+    """Gets the smallest number of utxo given requested amount
+
+    :param amount: <float> requested number of docoin
+    :param address: <str> address to search by
+    :return: <list[(string, int)]> list of tuples containing:
+       - transaction hash
+       - utxo index within transaction
+    """
+    utxo = UTXO_DB.get_all_utxo_for_address(address)
+    return utxo
+
+
+def get_valid_utxo_for_address_and_amount(
+    UTXO_DB: UTXO,
+    address: str,
+    amount: float
+):
+    """Gets the smallest number of utxo given requested amount
+
+    :param amount: <float> requested number of docoin
+    :param address: <str> address to search by
+    :return: <tuple(list[dict], change)> tuple of valid utxo and change
+    """
+    unspent = UTXO_DB.get_all_utxo_for_address(address)
+    greaters = [utxo for utxo in unspent if utxo["value"] >= amount]
+    lessers = [utxo for utxo in unspent if utxo["value"] < amount]
+    if greaters:
+        # The DB query includes a sort, so no need to sort again
+        change = amount - greaters[0]["value"]
+        return [greaters[0]], change
+    i, total, reversed_utxo = 0, 0, list(reversed(lessers))
+    utxo = []
+    while total < amount:
+        utxo.append(reversed_utxo[i])
+        total += reversed_utxo[i]["value"]
+    change = total - amount
+    return utxo, change if total >= amount else None, 0

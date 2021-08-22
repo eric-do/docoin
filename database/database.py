@@ -46,7 +46,6 @@ class Database:
         self.connect()
         with self.conn.cursor() as cur:
             cur.execute(query, params)
-            print(cur.query)
             self.conn.commit()
         return f"{cur.rowcount} rows affected."
 
@@ -71,7 +70,7 @@ class UTXO:
         message = self.session.update_rows(query, params)
         print(message)
 
-    def get_utxo(self, address):
+    def get_all_utxo_for_address(self, address):
         query = "SELECT * FROM utxo \
                  WHERE address = %s \
                  ORDER BY value"
