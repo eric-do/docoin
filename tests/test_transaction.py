@@ -94,3 +94,32 @@ def test_get_valid_utxo_when_all_are_less_than_or_equal_to_amount(
     )
     assert len(utxo) == 2
     assert change >= 0
+
+
+def test_get_valid_utxo_when_some_gte_amount(
+    utxo_model
+):
+    address = hashlib.sha256(
+        "test_get_valid_utxo_when_some_gte_amount".encode()
+    ).hexdigest()
+
+    def generate_random_utxo(i):
+        return {
+            "address": address,
+            "tx_hash": hashlib.sha256("hash".encode()).hexdigest(),
+            "tx_index": random.randrange(10),
+            "tx_time": f'{str(datetime.datetime.now())} UTC',
+            "script": hashlib.sha256("script".encode()).hexdigest(),
+            "value": i + 1,
+        }
+
+    utxo_input = [generate_random_utxo(i) for i in range(10)]
+    for ui in utxo_input:
+        utxo_model.add_utxo(ui)
+    utxo, change = get_valid_utxo_for_address_and_amount(
+        utxo_model,
+        address,
+        10
+    )
+    assert len(utxo) == 1
+    assert change >= 0
