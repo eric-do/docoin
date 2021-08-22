@@ -62,7 +62,6 @@ class UTXO:
         query = 'INSERT INTO utxo (address, tx_hash, tx_index, \
                                    tx_time, script, value) \
                  VALUES (%s, %s, %s, %s, %s, %s)'
-        print(utxo)
         params = (
             utxo["address"], utxo["tx_hash"], utxo["tx_index"],
             utxo["tx_time"], utxo["script"], utxo["value"]

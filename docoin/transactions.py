@@ -108,11 +108,10 @@ def get_valid_utxo_for_address_and_amount(
     :param address: <str> address to search by
     :return: <tuple(list[dict], change)> tuple of valid utxo and change
     """
-    unspent = UTXO_DB.get_all_utxo_for_address(address)
-    greaters = [utxo for utxo in unspent if utxo["value"] >= amount]
-    lessers = [utxo for utxo in unspent if utxo["value"] < amount]
+    sorted_unspent = UTXO_DB.get_all_utxo_for_address(address)
+    greaters = [utxo for utxo in sorted_unspent if utxo["value"] >= amount]
+    lessers = [utxo for utxo in sorted_unspent if utxo["value"] < amount]
     if greaters:
-        # The DB query includes a sort, so no need to sort again
         change = amount - greaters[0]["value"]
         return [greaters[0]], change
     i, total, reversed_utxo = 0, 0, list(reversed(lessers))
@@ -121,4 +120,4 @@ def get_valid_utxo_for_address_and_amount(
         utxo.append(reversed_utxo[i])
         total += reversed_utxo[i]["value"]
     change = total - amount
-    return utxo, change if total >= amount else None, 0
+    return (utxo, change) if total >= amount else (None, 0)

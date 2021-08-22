@@ -9,9 +9,9 @@ def test_successful_database_connection(session):
     assert cur.fetchone()[0] == 2
 
 
-def test_insert_utxo_to_database(utxo_model, db_cleanup):
+def test_insert_utxo_to_database(utxo_model):
     utxo = {
-        "address": hashlib.sha256("address".encode()).hexdigest(),
+        "address": hashlib.sha256("test_insert_utxo_to_database".encode()).hexdigest(),
         "tx_hash": hashlib.sha256("hash".encode()).hexdigest(),
         "tx_index": random.randrange(10),
         "tx_time": f'{str(datetime.datetime.now())} UTC',
@@ -25,9 +25,9 @@ def test_insert_utxo_to_database(utxo_model, db_cleanup):
     assert rows[0]["address"] == utxo["address"]
 
 
-def test_spend_transaction(utxo_model, db_cleanup):
+def test_spend_transaction(utxo_model):
     utxo = {
-        "address": hashlib.sha256("address".encode()).hexdigest(),
+        "address": hashlib.sha256("test_spend_transaction".encode()).hexdigest(),
         "tx_hash": hashlib.sha256("hash".encode()).hexdigest(),
         "tx_index": random.randrange(10),
         "tx_time": f'{str(datetime.datetime.now())} UTC',

@@ -35,17 +35,12 @@ def session():
     config.DATABASE_USERNAME = "postgres"
     db = database.Database(config)
     db.connect()
-    yield db
-    db.conn.close()
-
-
-@pytest.fixture()
-def db_cleanup(session):
-    print('RUNNING TEST')
-    yield
-    print('CLEANING UP DB')
-    session.conn.cursor().execute('TRUNCATE TABLE utxo')
-    session.conn.commit()
+    try:
+        yield db
+    finally:
+        db.conn.cursor().execute('TRUNCATE TABLE utxo')
+        db.conn.commit()
+        db.conn.close()
 
 
 @pytest.fixture

@@ -70,8 +70,7 @@ def test_get_all_utxo_for_address(utxo_model):
 
 
 def test_get_valid_utxo_when_all_are_less_than_or_equal_to_amount(
-    utxo_model,
-    db_cleanup
+    utxo_model
 ):
     address = hashlib.sha256("testvalidutxo".encode()).hexdigest()
 
@@ -88,12 +87,10 @@ def test_get_valid_utxo_when_all_are_less_than_or_equal_to_amount(
     utxo_input = [generate_random_utxo(i) for i in range(10)]
     for ui in utxo_input:
         utxo_model.add_utxo(ui)
-    t = get_valid_utxo_for_address_and_amount(
+    utxo, change = get_valid_utxo_for_address_and_amount(
         utxo_model,
         address,
-        100
+        11
     )
-    print(t)
-    # print('utxo list', utxo)
-    # print('change', change)
-    assert len(t[0]) == len(utxo_input)
+    assert len(utxo) == 2
+    assert change >= 0
