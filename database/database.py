@@ -53,12 +53,17 @@ class Database:
 class UTXO:
     """UTXO class for handling unspent transactions
 
+    Attributes
+      session: an instance of the DB connection class
     """
 
     def __init__(self, session: Database):
         self.session = session
 
     def add_utxo(self, utxo):
+        """Method for adding utxo to the DB
+        :param utxo: <list[utxo]> list of utxo objects to insert
+        """
         query = 'INSERT INTO utxo (address, tx_hash, tx_index, \
                                    tx_time, script, value) \
                  VALUES (%s, %s, %s, %s, %s, %s)'
@@ -70,15 +75,24 @@ class UTXO:
         print(message)
 
     def get_all_utxo_for_address(self, address):
+        """Method for querying utxo from the DB given an address
+        :param address: <str> encrypted address to query by
+        """
         query = "SELECT * FROM utxo \
                  WHERE address = %s \
                  ORDER BY value"
         utxo = self.session.select_rows(query, [address])
         return utxo
 
-    def spend_utxo(self, address, tx_index):
+    def spend_utxo(self, tx_hash, tx_index):
+        """Method "spending" utxo
+
+        This method actually deletes utxo from the DB, but in terms
+        of business logic, a utxo is deleted when it is spent.
+        :param tx_hash: <str> transaction identifier
+        """
         query = "DELETE FROM utxo \
-                 WHERE address = %s \
+                 WHERE tx_hash = %s \
                  AND tx_index = %s"
-        message = self.session.update_rows(query, [address, tx_index])
+        message = self.session.update_rows(query, [tx_hash, tx_index])
         print(message)

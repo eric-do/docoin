@@ -39,6 +39,6 @@ def test_spend_transaction(utxo_model):
         "value": float("{:.8f}".format(random.randrange(1, 1000000)/100)),
     }
     utxo_model.add_utxo(utxo)
-    utxo_model.spend_utxo(utxo["address"], utxo["tx_index"])
-    rows = utxo_model.get_all_utxo_for_address(utxo["address"])
+    utxo_model.spend_utxo(utxo["tx_hash"], utxo["tx_index"])
+    rows = utxo_model.get_all_utxo_for_address(utxo["tx_hash"])
     assert len(rows) == 0
