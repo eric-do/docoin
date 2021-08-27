@@ -2,6 +2,7 @@ from time import time
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey, VerifyKey
 from nacl.exceptions import BadSignatureError
+from typing import List
 import json
 
 from database.database import UTXO
@@ -21,7 +22,7 @@ class Transaction:
       fees: fees for the transaction
     """
     def __init__(
-        inputs: list[str],
+        inputs: List[str],
 
     ):
         pass
